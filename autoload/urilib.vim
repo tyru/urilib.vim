@@ -247,7 +247,12 @@ function! s:parse_uri(str) "{{{
 
     let [_, rest] = s:eat_em(rest, '^://')
 
-    " TODO: userinfo
+    " userinfo
+    try
+        let [userinfo, rest] = s:eat_userinfo(rest)
+    catch /^uri parse error:/
+        let userinfo = ''
+    endtry
 
     " host
     let [host, rest] = s:eat_host(rest)
@@ -282,6 +287,7 @@ function! s:parse_uri(str) "{{{
 
     return {
     \   'scheme': scheme,
+    \   'userinfo': userinfo,
     \   'host': host,
     \   'port': port,
     \   'path': path,
@@ -316,6 +322,7 @@ let s:SUB_DELIMS  = '[!$&''()*+,;=]'
 let s:PCHAR = '\%('.s:UNRESERVED.'\|'.s:PCT_ENCODED.'\|'.s:SUB_DELIMS.'\|[:@]\)'
 
 let s:RX_SCHEME = '^\(\a\%([[:alpha:][:digit:]+.-]\)*\)'
+let s:RX_USERINFO = '^\(\%('.s:UNRESERVED.'\|'.s:PCT_ENCODED.'\|'.s:SUB_DELIMS.'\|:\)*\)@'
 " s:RX_HOST {{{
     " TODO: IPv6
     " let s:H16 = ''
@@ -350,6 +357,8 @@ let s:RX_FRAGMENT = s:RX_QUERY
 let s:FUNCTION_DESCS = {
 \   'scheme': 'uri parse error: all characters'
 \           . ' in scheme must be [a-z].',
+\   'userinfo': 'uri parse error: all characters'
+\           . ' in userinfo must be [a-z].',
 \   'host': 'uri parse error: all characters'
 \         . ' in host must be [\x00-\xff].',
 \   'port': 'uri parse error: all characters'
