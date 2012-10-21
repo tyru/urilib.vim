@@ -1,0 +1,3 @@
+[submodule "uri-tests-with-some-langs"]
+	path = uri-tests-with-some-langs
+	url = git://gist.github.com/3912294.git
